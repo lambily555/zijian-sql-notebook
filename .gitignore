@@ -1,0 +1,15 @@
+node_modules/
+release/
+desktop-profile/
+backups/
+*.log
+*.tmp
+*.lock
+data/*
+!data/knowledge.json
+!data/coach.json
+!data/journal.json
+desktop/*
+!desktop/resources/
+desktop/resources/*
+!desktop/resources/app/

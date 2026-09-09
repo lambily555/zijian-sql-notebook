@@ -1,0 +1,18 @@
+{
+  "name": "zijian-sql-notebook",
+  "version": "1.0.0",
+  "description": "紫笺：本地 SQL 知识笔记与学习手记，支持 AI Agent 文件工作流",
+  "productName": "紫笺 SQL 学习笔记本",
+  "main": "desktop/resources/app/main.cjs",
+  "private": true,
+  "license": "MIT",
+  "author": "lambily555",
+  "repository": "https://github.com/lambily555/zijian-sql-notebook",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test tests/storage.test.cjs",
+    "build:win": "node scripts/build-win.cjs"
+  },
+  "devDependencies": {"electron": "37.10.3"},
+  "engines": {"node": ">=22"}
+}

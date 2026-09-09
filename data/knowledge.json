@@ -1,0 +1,47 @@
+{
+  "revision": 1,
+  "chapters": [
+    {
+      "id": "chapter-05",
+      "title": "1. SELECT 选择列",
+      "content": "## 示例笔记\n选择希望返回的列。示例中的 customers 是假设的练习表。\n\n```sql\nSELECT name, city\nFROM customers;\n```\n\n## 我的练习\n点击“编辑本章”，补充自己的理解与例题。",
+      "revision": 1
+    },
+    {
+      "id": "chapter-07",
+      "title": "2. WHERE 筛选行",
+      "content": "## 示例笔记\nWHERE 只保留满足条件的行。\n\n```sql\nSELECT name\nFROM customers\nWHERE city = '上海';\n```\n\n## 我的练习\n点击“编辑本章”，补充自己的理解与例题。",
+      "revision": 1
+    },
+    {
+      "id": "chapter-37",
+      "title": "3. DISTINCT 去重",
+      "content": "## 示例笔记\n对所选列组合去重。\n\n```sql\nSELECT DISTINCT city\nFROM customers;\n```\n\n## 我的练习\n点击“编辑本章”，补充自己的理解与例题。",
+      "revision": 1
+    },
+    {
+      "id": "chapter-09",
+      "title": "4. ORDER BY 排序",
+      "content": "## 示例笔记\n先按城市升序，同城时按姓名降序。\n\n```sql\nSELECT name, city\nFROM customers\nORDER BY city ASC, name DESC;\n```\n\n## 我的练习\n点击“编辑本章”，补充自己的理解与例题。",
+      "revision": 1
+    },
+    {
+      "id": "chapter-11",
+      "title": "5. AND 与 OR",
+      "content": "## 示例笔记\nAND 表示同时满足，OR 表示至少满足其一。复杂条件用括号明确分组。\n\n```sql\nSELECT name\nFROM customers\nWHERE city = '上海' OR city = '北京';\n```\n\n## 我的练习\n点击“编辑本章”，补充自己的理解与例题。",
+      "revision": 1
+    },
+    {
+      "id": "chapter-30",
+      "title": "6. GROUP BY 聚合",
+      "content": "## 示例笔记\n按城市分组，统计每组的行数。\n\n```sql\nSELECT city, COUNT(*) AS customer_count\nFROM customers\nGROUP BY city;\n```\n\n## 我的练习\n点击“编辑本章”，补充自己的理解与例题。",
+      "revision": 1
+    },
+    {
+      "id": "chapter-33",
+      "title": "7. LEFT JOIN 关联",
+      "content": "## 示例笔记\n保留左表客户；没有匹配订单时，右表列返回 NULL。\n\n```sql\nSELECT c.name, o.id\nFROM customers AS c\nLEFT JOIN orders AS o ON c.id = o.customer_id;\n```\n\n## 我的练习\n点击“编辑本章”，补充自己的理解与例题。",
+      "revision": 1
+    }
+  ]
+}
