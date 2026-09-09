@@ -10,6 +10,7 @@ const exe=path.join(output,'desktop',fs.existsSync(path.join(runtime,'electron.e
 fs.renameSync(exe,path.join(output,'desktop','zijian.exe'));
 for(const name of ['index.html','style.css','app.js','knowledge.js','app-icon.ico','knowledge_update.cjs','README.md','LICENSE'])fs.copyFileSync(path.join(root,name),path.join(output,name));
 fs.cpSync(path.join(root,'desktop/resources/app'),path.join(output,'desktop/resources/app'),{recursive:true});
+fs.cpSync(path.join(root,'docs'),path.join(output,'docs'),{recursive:true});
 // Only the committed, anonymous seed data is packaged, never the user's live notes.
 const {execFileSync}=require('node:child_process');
 fs.mkdirSync(path.join(output,'data'));

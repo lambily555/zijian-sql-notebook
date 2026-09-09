@@ -61,7 +61,7 @@ function render(){
   $('dayNumber').textContent=current.slice(8);$('yearMonth').textContent=current.slice(0,7).replace('-',' / ');
   $('monthCaption').textContent=new Intl.DateTimeFormat('zh-CN',{year:'numeric',month:'long',timeZone:'Asia/Shanghai'}).format(d)+'的书页';
   $('datePicker').value=current;title.value=data.journal[current]?.title||'';body.value=data.journal[current]?.body||'';
-  $('wordCount').textContent=`${body.value.length} 字`;renderCoach();renderIndex();$('status').textContent=data.journal[current]?'已保存到 本机':'已打开 · 等你落笔';
+  $('wordCount').textContent=`${body.value.length} 字`;renderCoach();renderIndex();$('status').textContent=data.journal[current]?'已保存到本机':'已打开 · 等你落笔';
 }
 async function refresh(){
   try{const incoming=await api('/api/notebook');
@@ -76,8 +76,8 @@ async function save(){
   if(saving){await saving;if(dirty)return save();return true;}
   if(!dirty)return true;
   const version=editVersion,day=current,payload={date:day,title:title.value,body:body.value,revision:data.journal[day]?.revision||0};
-  $('status').textContent='正在保存到 本机…';
-  saving=(async()=>{try{const entry=await api('/api/journal',payload);data.journal[day]=entry;if(version===editVersion)dirty=false;$('status').textContent=dirty?'还有新文字待保存':'已保存到 本机';notice('');renderIndex();return true;}catch(error){notice(error.message);$('status').textContent='未保存 · 请保留当前页面';return false;}})();
+  $('status').textContent='正在保存到本机…';
+  saving=(async()=>{try{const entry=await api('/api/journal',payload);data.journal[day]=entry;if(version===editVersion)dirty=false;$('status').textContent=dirty?'还有新文字待保存':'已保存到本机';notice('');renderIndex();return true;}catch(error){notice(error.message);$('status').textContent='未保存 · 请保留当前页面';return false;}})();
   const ok=await saving;saving=null;if(ok&&dirty)return save();return ok;
 }
 async function saveAll(){if(!await save())return false;return window.knowledgeSave?window.knowledgeSave():true;}
