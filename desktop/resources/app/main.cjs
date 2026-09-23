@@ -13,9 +13,11 @@ if(!app.requestSingleInstanceLock()){app.quit();}else{
   app.on('second-instance',(_event,argv)=>{if(argv.includes('--restart-notebook'))requestExit(true);else showWindow();});
   app.whenReady().then(async()=>{
     protocol.handle('zijian',require('./storage.cjs')(root));
-    ipcMain.removeHandler('clipboard:read-text');ipcMain.removeHandler('clipboard:write-text');
+    ipcMain.removeHandler('clipboard:read-text');ipcMain.removeHandler('clipboard:write-text');ipcMain.removeHandler('clipboard:read-image');ipcMain.removeHandler('clipboard:write-image');
     ipcMain.handle('clipboard:read-text',()=>clipboard.readText());
     ipcMain.handle('clipboard:write-text',(_event,text)=>{clipboard.writeText(String(text));return true;});
+    ipcMain.handle('clipboard:read-image',()=>{const image=clipboard.readImage();return image.isEmpty()?'':image.toDataURL();});
+    ipcMain.handle('clipboard:write-image',(_event,dataUrl)=>{const image=nativeImage.createFromDataURL(dataUrl);if(image.isEmpty())throw Error('图片为空');clipboard.writeImage(image);return true;});
     Menu.setApplicationMenu(Menu.buildFromTemplate([{label:'编辑',submenu:[{role:'undo',label:'撤销'},{role:'redo',label:'重做'},{type:'separator'},{role:'cut',label:'剪切'},{role:'copy',label:'复制'},{role:'paste',label:'粘贴'},{role:'selectAll',label:'全选'}]}]));
     session.defaultSession.setPermissionRequestHandler((_contents,_permission,callback)=>callback(false));
     session.defaultSession.setPermissionCheckHandler(()=>false);

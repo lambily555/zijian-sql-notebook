@@ -11,22 +11,16 @@
       <div class="study-column">
         <button class="study-card" data-chapter="chapter-05"><span class="card-number">01 / 基础查询</span><h3>SELECT</h3><p>先确定，你想看到哪几列。</p><pre>SELECT CustomerName, City
 FROM Customers;</pre><span class="card-link">阅读知识笔记 <span aria-hidden="true">↗</span></span></button>
-        
         <button class="study-card" data-chapter="chapter-09"><span class="card-number">04 / 基础查询</span><h3>ORDER BY</h3><p>先排国家，再排同一国家的客户。</p><pre>ORDER BY Country ASC,
          CustomerName DESC;</pre><span class="card-link">阅读知识笔记 <span aria-hidden="true">↗</span></span></button>
-        
       </div>
       <div class="study-column">
-        
         <p class="pencil-note">先想清楚，再写下一行。</p>
         <button class="study-card" data-chapter="chapter-11"><span class="card-number">05 / 基础查询</span><h3>AND / OR</h3><p>同时满足用 AND；任一满足用 OR。</p><pre>WHERE Country = 'Germany'
    OR Country = 'France';</pre><span class="card-link">阅读知识笔记 <span aria-hidden="true">↗</span></span></button>
-        
       </div>
       <div class="study-column">
-        
         <button class="study-card" data-chapter="chapter-07"><span class="card-number">02 / 基础查询</span><h3>WHERE</h3><p>把名单缩小到符合要求的客户。</p><pre>WHERE Country = 'Mexico';</pre><span class="card-link">阅读知识笔记 <span aria-hidden="true">↗</span></span></button>
-        
         <button class="study-card" data-chapter="chapter-37"><span class="card-number">03 / 基础查询</span><h3>DISTINCT</h3><p>城市清单，一行只代表一个城市。</p><pre>SELECT DISTINCT City
 FROM Customers;</pre><span class="card-link">阅读知识笔记 <span aria-hidden="true">↗</span></span></button>
       </div>
@@ -34,14 +28,12 @@ FROM Customers;</pre><span class="card-link">阅读知识笔记 <span aria-hidde
     <section class="journal-next" aria-label="后续学习方向">
       <div class="part-heading"><span>02</span><div><small>NEXT CHAPTERS</small><h2>从名单，走向分析。</h2><p>后续学习方向；笔记可预览，不代表已经掌握。</p></div></div>
       <div class="next-layout">
-        
         <div class="next-links">
           <button data-chapter="chapter-30"><span>02</span><div><h3>聚合分析</h3><p>GROUP BY / COUNT / SUM</p><small>把客户与订单汇总成可比较的数字</small></div><b aria-hidden="true">↗</b></button>
           <button data-chapter="chapter-33"><span>03</span><div><h3>多表查询</h3><p>JOIN / LEFT JOIN</p><small>把分散在不同表里的信息联系起来</small></div><b aria-hidden="true">↗</b></button>
           <div class="future-chapter"><span>04</span><div><h3>进阶查询</h3><p>子查询 / CTE / 窗口函数</p><small>待后续学习时整理</small></div></div>
         </div>
       </div>
-      
     </section>
     <footer class="cover-credit">紫笺 · 从查询到笔记</footer>
   </div>
@@ -54,20 +46,20 @@ FROM Customers;</pre><span class="card-link">阅读知识笔记 <span aria-hidde
     <div id="dailyNav">
     <div class="side-intro">把每天学会的，<br>留在纸上。</div>
     <button id="today" class="primary">写下今天 <span aria-hidden="true">＋</span></button>
-    <label class="search-label" for="search">查找记录</label><input id="search" type="search" placeholder="日期、课程或关键词" autocomplete="off">
+    <label class="search-label" for="search">查找记录</label><input id="search" type="search" placeholder="日期、标题、课程、题目或答案" autocomplete="off">
     <div class="index-heading"><span>我的书页</span><span id="entryCount">载入中</span></div>
     <nav id="dates" aria-label="学习记录目录"></nav>
     <div id="emptySearch" hidden>没有找到相关书页。</div>
     </div>
     <div id="knowledgeNav" hidden>
       <p class="knowledge-nav-intro">概念、例题与易错点，<br>按章节随时查阅。</p>
-      <label for="knowledgeSearch" class="knowledge-search-label">搜索整本知识笔记</label><input id="knowledgeSearch" type="search" placeholder="例如：LIKE、大小写、排序">
+      <label for="knowledgeSearch" class="knowledge-search-label">搜索整本知识笔记</label><input id="knowledgeSearch" type="search" placeholder="中文概念或 SQL 术语均可">
       <div class="index-heading"><span>章节目录</span><span id="chapterCount"></span></div><nav id="chapterList" aria-label="知识笔记章节"></nav><p id="noChapters" hidden>没有匹配章节，试试其他关键词。</p>
     </div>
     <div class="sidebar-bottom"><span class="swatch"></span>烟霞紫 · 鎏金<p>淡金细线，象牙白纸页</p><button id="backup" class="text-button">备份到本机</button></div>
   </aside>
   <main>
-    <header class="toolbar"><div class="breadcrumb"><button id="showCover">封面</button> <span>/</span> <span id="viewName">每日学习记录</span></div><div class="tools"><button id="copyText" title="复制选中文字（Ctrl+C）">复制</button><button id="pasteText" title="粘贴到最后编辑的位置（Ctrl+V）">粘贴</button><div class="tool-group" id="dailyTools"><button id="penToggle" aria-pressed="true">钢笔动效：开</button><button id="save" class="save-button">保存手记</button></div></div></header>
+    <header class="toolbar"><div class="breadcrumb"><button id="showCover">封面</button> <span>/</span> <span id="viewName">每日学习记录</span></div><div class="tools"><button id="undoEdit" aria-label="撤回" title="撤回上一步编辑（Ctrl+Z）">↶</button><button id="redoEdit" aria-label="重做" title="取消撤回（Ctrl+Y 或 Ctrl+Shift+Z）">↷</button><button id="copyText" title="复制选中文字（Ctrl+C）">复制</button><button id="pasteText" title="粘贴到最后编辑的位置（Ctrl+V）">粘贴</button><div class="tool-group" id="dailyTools"><button id="penToggle" aria-pressed="true">钢笔动效：开</button><button id="refreshDaily" class="refresh-button" title="重新读取教练安排和学习记录">刷新内容</button><button id="save" class="save-button">保存手记</button></div></div></header>
     <div id="notice" role="alert" hidden></div>
     <div id="dailyView">
     <div class="workspace-caption"><span id="monthCaption">九月的书页</span><span id="status" role="status" aria-live="polite">正在打开笔记本…</span></div>
@@ -88,9 +80,9 @@ FROM Customers;</pre><span class="card-link">阅读知识笔记 <span aria-hidde
           <div class="ribbon" aria-hidden="true"></div>
           <div class="page-top"><label for="journalTitle">我的手记</label><span>自由书写</span></div>
           <input id="journalTitle" class="journal-title" maxlength="120" placeholder="给今天起一个名字" aria-label="手记标题">
-          <label for="journalBody" class="writing-label">收获、疑问，或一段自己写的 SQL。</label>
-          <div class="writing-area"><textarea id="journalBody" spellcheck="false" maxlength="100000" placeholder="今天，我想记下……" aria-describedby="writingHint"></textarea></div>
-          <div class="writing-meta"><span id="wordCount">0 字</span><span id="writingHint">停笔后自动保存</span></div>
+          <div class="writing-label">收获、疑问，或一段自己写的 SQL。</div>
+          <div class="writing-area"><textarea id="journalBody" hidden></textarea><div id="journalComposer" class="journal-composer" contenteditable="true" spellcheck="false" data-placeholder="今天，我想记下……" aria-label="手记正文，支持在光标处插入图片"></div></div>
+          <div class="writing-meta"><span id="wordCount">0 字</span><div class="journal-image-tools"><button id="addJournalImage" type="button" title="在光标位置插入图片">插入图片</button><button id="pasteJournalImage" type="button" title="把剪贴板图片粘贴到光标位置">粘贴图片</button><input id="journalImageInput" type="file" accept="image/png,image/jpeg,image/webp" hidden></div><span id="writingHint">停笔后自动保存</span></div>
           <footer class="paper-footer"><span>留一点空白，给明天的自己。</span><span id="rightPageNo">02</span></footer>
         </article>
       </div>
@@ -114,6 +106,11 @@ FROM Customers;</pre><span class="card-link">阅读知识笔记 <span aria-hidde
     </section>
     <footer class="app-footer"><span>从运营出发，向数据分析前进。</span><span>本机保存 / 应用所在目录</span></footer>
   </main>
+</div>
+<div id="imagePreview" class="image-preview" hidden role="dialog" aria-modal="true" aria-label="手记图片预览">
+  <button id="closeImagePreview" class="image-preview-close" type="button" aria-label="关闭图片预览">关闭</button>
+  <img id="imagePreviewContent" alt="手记图片大图预览">
+  <div class="image-preview-actions"><span>按 Esc 或点击空白处关闭</span><button id="copyPreviewImage" type="button">复制图片</button></div>
 </div>
 <div id="pen" aria-hidden="true"><div class="pen-object"><i class="pen-barrel"></i><i class="pen-grip"></i><i class="pen-nib"></i></div></div>
 </body></html>
