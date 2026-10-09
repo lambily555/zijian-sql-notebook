@@ -2,12 +2,12 @@
 const $ = id => document.getElementById(id);
 const token = document.querySelector('meta[name="notebook-token"]').content;
 const today = () => new Intl.DateTimeFormat('en-CA', {timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
-let data={coach:{},journal:{}}, current=today(), dates=[], dirty=false, saving=null, editVersion=0, timer, penTimer, penEnabled=true, ready=false, journalImages=[];
+let data={coach:{},journal:{}}, current=today(), dates=[], dirty=false, saving=null, editVersion=0, timer, penTimer, penEnabled=true, ready=false, journalImages=[], saveBase=null;
 const title=$('journalTitle'), body=$('journalBody'),composer=$('journalComposer');let composerRange=null;
 function notice(text){$('notice').textContent=text;$('notice').hidden=!text;}
 async function api(path,payload){
   const response=await fetch(path,payload===undefined?{cache:'no-store'}:{method:'POST',headers:{'Content-Type':'application/json','X-Notebook-Token':token},body:JSON.stringify(payload)});
-  const value=await response.json();if(!response.ok)throw Error(value.error||'操作失败');return value;
+  const value=await response.json();if(!response.ok){const error=Error(value.error||'操作失败');error.status=response.status;throw error;}return value;
 }
 function allDates(){return [...new Set([...Object.keys(data.coach),...Object.keys(data.journal),current])].sort();}
 const searchAliases={
@@ -98,7 +98,7 @@ async function refresh(manual=false){
   try{const incoming=await api('/api/notebook');
     // Never replace an active or unsaved user edit with an external update.
     data.coach=incoming.coach;
-    if(!dirty&&!saving&&document.activeElement!==body&&document.activeElement!==composer&&document.activeElement!==title){data.journal=incoming.journal;if(ready){title.value=data.journal[current]?.title||'';body.value=data.journal[current]?.body||'';composer.innerHTML=safeRich(data.journal[current]?.richBody,body.value);composerRange=null;$('wordCount').textContent=`${body.value.length} 字`;}}
+    if(!dirty&&!saving&&document.activeElement!==body&&document.activeElement!==composer&&document.activeElement!==title){const changed=JSON.stringify(data.journal[current])!==JSON.stringify(incoming.journal[current]);data.journal=incoming.journal;if(ready&&changed){title.value=data.journal[current]?.title||'';body.value=data.journal[current]?.body||'';composer.innerHTML=safeRich(data.journal[current]?.richBody,body.value);composerRange=null;$('wordCount').textContent=`${body.value.length} 字`;}}
     if(!ready){data.journal=incoming.journal;const keys=allDates();current=keys.includes(today())?today():keys[keys.length-1];ready=true;render();}else{renderCoach();renderIndex();}
     if(manual){notice('');$('status').textContent=dirty?'内容已刷新 · 当前手记仍待保存':'内容已刷新';}
     return true;
@@ -107,11 +107,11 @@ async function refresh(manual=false){
 }
 async function save(){
   clearTimeout(timer);
-  if(saving){await saving;if(dirty)return save();return true;}
+  if(saving){const ok=await saving;if(!ok)return false;if(dirty)return save();return true;}
   if(!dirty)return true;
-  syncComposer();const version=editVersion,day=current,payload={date:day,title:title.value,body:body.value,richBody:safeRich(composer.innerHTML,body.value),images:[],revision:data.journal[day]?.revision||0};
-  $('status').textContent='正在保存到本机…';
-  saving=(async()=>{try{const entry=await api('/api/journal',payload);data.journal[day]=entry;if(version===editVersion)dirty=false;$('status').textContent=dirty?'还有新文字待保存':'已保存到本机';notice('');renderIndex();return true;}catch(error){notice(error.message);$('status').textContent='未保存 · 请保留当前页面';return false;}})();
+  syncComposer();const version=editVersion,day=current,payload={date:day,title:title.value,body:body.value,richBody:safeRich(composer.innerHTML,body.value),images:[],revision:data.journal[day]?.revision||0,base:saveBase||data.journal[day]};
+  $('status').textContent='正在保存到 本机…';
+  saving=(async()=>{try{const entry=await api('/api/journal',payload);data.journal[day]=entry;saveBase=version===editVersion?null:{...payload,revision:entry.revision};if(version===editVersion){dirty=false;if(entry.merged){const scroll=composer.scrollTop;title.value=entry.title;body.value=entry.body;composer.innerHTML=safeRich(entry.richBody,entry.body);composerRange=null;composer.scrollTop=scroll;}}$('status').textContent=dirty?'还有新文字待保存':'已保存到 本机';notice('');renderIndex();return true;}catch(error){notice(error.message);$('status').textContent='未保存 · '+error.message;return false;}})();
   const ok=await saving;saving=null;if(ok&&dirty)return save();return ok;
 }
 async function saveAll(){if(!await save())return false;return window.knowledgeSave?window.knowledgeSave():true;}
@@ -140,9 +140,17 @@ function safeRich(html,fallback=''){
 }
 function syncComposer(){body.value=composer.innerText.replace(/\n{3,}/g,'\n\n').trimEnd();}
 function rememberComposerRange(){const selection=getSelection();if(selection?.rangeCount&&composer.contains(selection.anchorNode))composerRange=selection.getRangeAt(0).cloneRange();}
-function insertAtComposerCursor(node){composer.focus();const selection=getSelection(),range=composerRange&&composer.contains(composerRange.commonAncestorContainer)?composerRange:document.createRange();if(!composerRange||!composer.contains(composerRange.commonAncestorContainer)){range.selectNodeContents(composer);range.collapse(false);}selection.removeAllRanges();selection.addRange(range);range.deleteContents();range.insertNode(node);const after=document.createTextNode('\u200b');node.after(after);range.setStartAfter(after);range.collapse(true);selection.removeAllRanges();selection.addRange(range);composerRange=range.cloneRange();syncComposer();edited();}
+function insertAtComposerCursor(node){composer.focus();const selection=getSelection(),range=composerRange&&composer.contains(composerRange.commonAncestorContainer)?composerRange:document.createRange();if(!composerRange||!composer.contains(composerRange.commonAncestorContainer)){range.selectNodeContents(composer);range.collapse(false);}selection.removeAllRanges();selection.addRange(range);const inserted=node.nodeType===Node.TEXT_NODE?document.execCommand('insertText',false,node.data):document.execCommand('insertHTML',false,node.outerHTML+'\u200b');if(!inserted){notice('未能插入内容，请保留剪贴板再试。');return;}rememberComposerRange();syncComposer();edited();}
 function insertImageAtCursor(src){const img=document.createElement('img');img.src=src;img.alt='手记图片';img.className='inline-journal-image';img.setAttribute('contenteditable','false');insertAtComposerCursor(img);}
-function insertTextAtComposerCursor(text){insertAtComposerCursor(document.createTextNode(text));}
+function cleanCopiedText(text){return text.replace(/\u200b/g,'');}
+function insertTextAtComposerCursor(text){insertAtComposerCursor(document.createTextNode(cleanCopiedText(text)));}
+document.addEventListener('copy',event=>{
+  const text=selectedText();if(!text.includes('\u200b')||!event.clipboardData)return;
+  const selection=getSelection(),fragment=document.createElement('div');
+  if(selection?.rangeCount){fragment.append(selection.getRangeAt(0).cloneContents());const walker=document.createTreeWalker(fragment,NodeFilter.SHOW_TEXT);while(walker.nextNode())walker.currentNode.data=cleanCopiedText(walker.currentNode.data);}
+  event.preventDefault();event.clipboardData.setData('text/plain',cleanCopiedText(text));
+  if(fragment.childNodes.length)event.clipboardData.setData('text/html',fragment.innerHTML);
+});
 async function imageData(file){if(file.size>8*1024*1024)throw Error('单张图片不能超过8MB');const source=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(Error('图片读取失败'));reader.readAsDataURL(file);});const img=await new Promise((resolve,reject)=>{const value=new Image();value.onload=()=>resolve(value);value.onerror=()=>reject(Error('图片格式不受支持'));value.src=source;});const scale=Math.min(1,1600/Math.max(img.width,img.height)),canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.width*scale));canvas.height=Math.max(1,Math.round(img.height*scale));canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);return canvas.toDataURL('image/jpeg',.86);}
 $('addJournalImage').onclick=()=>$('journalImageInput').click();$('journalImageInput').onchange=async event=>{const file=event.target.files?.[0];event.target.value='';if(!file)return;if(composer.querySelectorAll('img').length>=12){notice('每页最多放12张图片。');return;}try{insertImageAtCursor(await imageData(file));notice('图片已插入光标位置。');}catch(error){notice(error.message);}};
 $('pasteJournalImage').onclick=async()=>{if(composer.querySelectorAll('img').length>=12){notice('每页最多放12张图片。');return;}try{const src=await window.notebookClipboard.readImage();if(!src){notice('剪贴板里没有图片。');return;}insertImageAtCursor(src);notice('图片已粘贴到光标位置。');}catch(error){notice('粘贴图片失败：'+error.message);}};
@@ -192,7 +200,7 @@ document.addEventListener('beforeinput',event=>{
 });
 document.addEventListener('input',event=>{const state=editHistory.get(event.target);if(state)state.current=snapshot(event.target);});
 function restoreEdit(direction){
-  if(lastEditable===composer){composer.focus();document.execCommand(direction==='undo'?'undo':'redo');syncComposer();rememberComposerRange();edited();notice(direction==='undo'?'已撤回上一步编辑。':'已恢复刚撤回的编辑。');return;}
+  if(lastEditable===composer){composer.focus();const restored=document.execCommand(direction==='undo'?'undo':'redo');if(!restored){notice(direction==='undo'?'当前没有可撤回的编辑。':'当前没有可恢复的编辑。');return;}syncComposer();rememberComposerRange();edited();notice(direction==='undo'?'已撤回上一步编辑。':'已恢复刚撤回的编辑。');return;}
   const target=lastEditable;if(!target?.matches?.(historyFields)){notice('请先点击手记或知识笔记编辑框。');return;}
   const state=editHistory.get(target)||{undo:[],redo:[],current:snapshot(target)};
   const source=direction==='undo'?state.undo:state.redo,targetStack=direction==='undo'?state.redo:state.undo;
@@ -203,7 +211,7 @@ function restoreEdit(direction){
 function selectedText(){const active=document.activeElement;if(active instanceof HTMLInputElement||active instanceof HTMLTextAreaElement)return active.value.slice(active.selectionStart??0,active.selectionEnd??0);return getSelection()?.toString()||'';}
 async function copyText(text=selectedText()){
   if(!text){notice('请先选中要复制的文字。');return false;}
-  try{await window.notebookClipboard.writeText(text);notice('已复制到剪贴板。');return true;}catch(error){notice('复制失败：'+error.message);return false;}
+  try{await window.notebookClipboard.writeText(cleanCopiedText(text));notice('已复制到剪贴板。');return true;}catch(error){notice('复制失败：'+error.message);return false;}
 }
 async function pasteText(){
   const target=lastEditable;if(target===composer){try{const image=await window.notebookClipboard.readImage();if(image){if(composer.querySelectorAll('img').length>=12){notice('每页最多放12张图片。');return false;}insertImageAtCursor(image);notice('图片已粘贴到光标位置。');return true;}const text=await window.notebookClipboard.readText();insertTextAtComposerCursor(text);notice('已粘贴到光标位置。');return true;}catch(error){notice('粘贴失败：'+error.message);return false;}}
@@ -211,6 +219,7 @@ async function pasteText(){
   try{const text=await window.notebookClipboard.readText(),start=target.selectionStart??target.value.length,end=target.selectionEnd??start;target.setRangeText(text,start,end,'end');target.focus();target.dispatchEvent(new InputEvent('input',{bubbles:true,inputType:'insertFromPaste',data:text}));notice('已粘贴。');return true;}catch(error){notice('粘贴失败：'+error.message);return false;}
 }
 $('copyText').onclick=()=>copyText();$('pasteText').onclick=pasteText;
+for(const id of ['undoEdit','redoEdit'])$(id).addEventListener('mousedown',event=>event.preventDefault());
 $('undoEdit').onclick=()=>restoreEdit('undo');$('redoEdit').onclick=()=>restoreEdit('redo');
 window.copyNotebookText=copyText;
 $('save').onclick=save;$('refreshDaily').onclick=()=>refresh(true);$('search').oninput=renderIndex;$('today').onclick=()=>go(today());$('datePicker').onchange=e=>{if(e.target.value)go(e.target.value);};
